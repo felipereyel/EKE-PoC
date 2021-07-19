@@ -1,6 +1,5 @@
 import argparse, time, sys, json
 from curses import wrapper
-from p2pnetwork.node import Node
 
 from node import P2P
 from ui import ChatUI

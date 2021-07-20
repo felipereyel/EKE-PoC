@@ -59,14 +59,14 @@ class P2P (Node):
             })
 
     def endKE(self, KE):
-        shared = self.ke.endExchange(KE["x"], KE["y"])
-        self.sysPrint("Session Key: " + str(shared))
+        self.ke.endExchange(KE["x"], KE["y"])
+        self.sysPrint("Session Key: " + self.ke.cipher.keyStr)
 
     # Message handling
 
     def node_message(self, node, data):
         if data.get("type") == "message":
-            self.chatPrint(self.connectedCTA + data.get("content"))
+            self.chatPrint(self.connectedCTA + self.ke.cipher.decrypt(data.get("content")))
         elif data.get("type") == "start_KE":
             self.startKE(data.get("KE"))
         elif data.get("type") == "end_KE":
@@ -78,7 +78,7 @@ class P2P (Node):
         self.chatPrint(self.selfCTA + str(msg))
         return self.send_to_nodes({ 
           "type": "message", 
-          "content": msg 
+          "content": self.ke.cipher.encrypt(msg)
         })
 
     ## System Logs

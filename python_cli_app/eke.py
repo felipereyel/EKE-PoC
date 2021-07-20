@@ -1,12 +1,39 @@
+import base64
 import secrets
+
+from Crypto.Cipher import AES
+from Crypto import Random
+from Crypto.Util.Padding import pad, unpad
+
 from tinyec import registry
 from tinyec.ec import Point
-from Crypto.Cipher import AES
+
+BS = 16
+
+class AESCipher:
+    def __init__(self, intKey):
+        self.key = intKey.to_bytes(32, 'big')
+
+    @property
+    def keyStr(self):
+        return base64.b64encode(self.key).decode()
+
+    def encrypt(self, msg):
+        raw = str.encode(msg)
+        raw = pad(raw, BS)
+        iv = Random.new().read(AES.block_size)
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return base64.b64encode(iv + cipher.encrypt(raw)).decode("ascii")
+
+    def decrypt(self, enc):
+        enc = base64.b64decode(enc)
+        iv = enc[:BS]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return unpad(cipher.decrypt( enc[BS:] ), BS).decode()
 
 curve = registry.get_curve('secp256r1')
 
 class EKE:
-
     def __init__(self, privKey, otherPub, curve=curve):
         self.curve = curve
         self.privKey = privKey
@@ -26,17 +53,5 @@ class EKE:
         myPartialShared =  (received * privKeyInv) - self.otherPub
         shared = self.mySelfPartialShared + myPartialShared
 
-        self.key = shared.x
+        self.cipher = AESCipher(shared.x)
         return shared.x
-
-    def crypt(self, msg):
-        cipher = AES.new(self.key, AES.MODE_EAX)
-        nonce = cipher.nonce
-        ciphertext, tag = cipher.encrypt_and_digest(msg)
-        return nonce, ciphertext, tag
-
-    def decrypt(self, nonce, ciphermsg, tag):
-        cipher = AES.new(self.key, AES.MODE_EAX, nonce=nonce)
-        plaintext = cipher.decrypt(ciphermsg)
-        cipher.verify(tag)
-        return plaintext

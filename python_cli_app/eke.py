@@ -16,12 +16,12 @@ class EKE:
         mySessionSecret = secrets.randbelow(self.curve.field.n)
         toOther = (self.privKey + mySessionSecret) * self.otherPub
 
-        mySelfPartialShared = self.privKey * self.curve.g
-        self.mySelfPartialShared = mySelfPartialShared
+        self.mySelfPartialShared = mySessionSecret * self.curve.g
+        return toOther.x, toOther.y
 
-        return toOther
+    def endExchange(self, receivedX, receivedY):
+        received = Point(self.curve, receivedX, receivedY)
 
-    def finishExchange(self, received):
         privKeyInv = pow(self.privKey, -1, self.curve.field.n)
         myPartialShared =  (received * privKeyInv) - self.otherPub
         shared = self.mySelfPartialShared + myPartialShared

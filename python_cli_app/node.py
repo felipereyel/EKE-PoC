@@ -24,6 +24,9 @@ class P2P (Node):
     def connectedCTA(self):
         return f"{self.destInfo.get('user')} >> "
 
+    def sysPrint(self, msg):
+        self.chatPrint(sysCTA + msg)
+
     # Init connection
 
     def connect(self):
@@ -36,41 +39,61 @@ class P2P (Node):
         else:
             sys.exit(f'Nao conseguiu conectar com usuario {self.destInfo["user"]}')
         time.sleep(1)
-        # self.startCrypt()
 
-    def startCrypt(self, answer=False):
-        pass
+    def outbound_node_connected(self, node):
+        self.startKE()
+        self.sysPrint('outbound_node_connected')
+
+    def startKE(self, KE=None):
+        x, y = self.ke.startExchange()
+        if KE:
+            self.send_to_nodes({ 
+              "type": "end_KE", 
+              "KE": { "x": x, "y": y }
+            })
+            self.endKE(KE)
+        else:
+            self.send_to_nodes({ 
+              "type": "start_KE", 
+              "KE": { "x": x, "y": y }
+            })
+
+    def endKE(self, KE):
+        shared = self.ke.endExchange(KE["x"], KE["y"])
+        self.sysPrint("Session Key: " + str(shared))
 
     # Message handling
-
-    def send_message(self, msg):
-        self.chatPrint(self.selfCTA + str(msg))
-        return self.send_to_nodes({ "type": "message", "content": msg })
 
     def node_message(self, node, data):
         if data.get("type") == "message":
             self.chatPrint(self.connectedCTA + data.get("content"))
-        elif data.get("type") == "config":
-            pass
+        elif data.get("type") == "start_KE":
+            self.startKE(data.get("KE"))
+        elif data.get("type") == "end_KE":
+            self.endKE(data.get("KE"))
         else:
-            self.chatPrint(sysCTA + 'UNKNOWN MESSAGE TYPE')
+            self.sysPrint('UNKNOWN MESSAGE TYPE')
 
-    ## System prints
+    def send_message(self, msg):
+        self.chatPrint(self.selfCTA + str(msg))
+        return self.send_to_nodes({ 
+          "type": "message", 
+          "content": msg 
+        })
 
-    def outbound_node_connected(self, node):
-        self.chatPrint(sysCTA + 'outbound_node_connected')
+    ## System Logs
 
     def inbound_node_connected(self, node):
-        self.chatPrint(sysCTA + 'inbound_node_connected')
+        pass # self.sysPrint('inbound_node_connected')
 
     def inbound_node_disconnected(self, node):
-        self.chatPrint(sysCTA + 'inbound_node_disconnected')
+        pass # self.sysPrint('inbound_node_disconnected')
 
     def outbound_node_disconnected(self, node):
-        self.chatPrint(sysCTA + 'outbound_node_disconnected')
+        pass # self.sysPrint('outbound_node_disconnected')
 
     def node_disconnect_with_outbound_node(self, node):
-        self.chatPrint(sysCTA + 'node_disconnect_with_outbound_node')
+        pass # self.sysPrint('node_disconnect_with_outbound_node')
 
     def node_request_to_stop(self):
-        self.chatPrint(sysCTA + 'node_request_to_stop')
+        pass # self.sysPrint('node_request_to_stop')

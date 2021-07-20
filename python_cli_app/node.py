@@ -1,21 +1,28 @@
+import time, sys
 from p2pnetwork.node import Node
 
 sysCTA = "sys > "
 
 class P2P (Node):
-
-    def __init__(self, nodeInfo, chatPrint=None):
+    def __init__(self, nodeInfo, destInfo, chatPrint):
         super(P2P, self).__init__(nodeInfo["host"], nodeInfo["port"], callback=None)
         self.debug = False
         self.chatPrint=chatPrint
+
         self.nodeInfo = nodeInfo
-        self.connectedNodeInfo = None
+        self.destInfo = destInfo
 
         self.start()
 
-    def connect_with_node(self, nodeInfo):
-        self.connectedNodeInfo = nodeInfo
-        return super().connect_with_node(nodeInfo["host"], nodeInfo["port"])
+    def connect(self):    
+        for i in range(5):
+            time.sleep(1)
+            if self.connect_with_node(self.destInfo["host"], self.destInfo["port"]):
+                break
+            else:
+                continue
+        else:
+            sys.exit(f'Nao conseguiu conectar com usuario {self.destInfo["user"]}')
 
     @property
     def selfCTA(self):
@@ -23,7 +30,7 @@ class P2P (Node):
 
     @property
     def connectedCTA(self):
-        return f"{self.connectedNodeInfo.get('user')} >> "
+        return f"{self.destInfo.get('user')} >> "
 
     # Init connection
 

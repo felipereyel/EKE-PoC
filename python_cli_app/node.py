@@ -1,8 +1,10 @@
-import time, sys
+import time, sys, base64
 from p2pnetwork.node import Node
 from eke import EKE
 
 sysCTA = "sys > "
+
+compress = lambda key: base64.b64encode(key.to_bytes(32, 'big')).decode('ascii')
 
 class P2P (Node):
     def __init__(self, nodeInfo, destInfo, chatPrint, debugPrint=False):
@@ -48,6 +50,7 @@ class P2P (Node):
 
     def startKE(self, KE=None):
         x, y = self.ke.startExchange()
+        self.sysPrint("EKE sent: " + compress(x))
         if KE:
             self.send_to_nodes({ 
               "type": "end_KE", 
@@ -61,6 +64,7 @@ class P2P (Node):
             })
 
     def endKE(self, KE):
+        self.sysPrint("EKE received: " + compress(KE["x"]))
         self.ke.endExchange(KE["x"], KE["y"])
         self.sysPrint("Session Key: " + self.ke.cipher.keyStr)
 

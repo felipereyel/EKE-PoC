@@ -5,6 +5,8 @@ def init():
     parser = argparse.ArgumentParser()
     parser.add_argument('--usuario', '-u', dest='user', help='Usuario', required=True)
     parser.add_argument('--destinatario', '-d', dest='dest', help='Destinatario', required=True)
+    parser.add_argument('--debug', dest='debug', help='Debug Prints', action='store_true')
+    parser.set_defaults(debug=False)
     args = parser.parse_args()
 
     if args.user == args.dest:
@@ -24,4 +26,4 @@ def init():
     if not userCheck:
         sys.exit("Usuario nao achado")
 
-    return dest, user
+    return dest, user, args.debug

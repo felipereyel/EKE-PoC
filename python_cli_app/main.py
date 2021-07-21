@@ -4,7 +4,7 @@ from init import init
 from node import P2P
 from ui import ChatUI
 
-dest, self = init()
+dest, self, debug = init()
 
 def main(stdscr):
     # Curses
@@ -15,7 +15,7 @@ def main(stdscr):
     ui.redraw_userlist()
 
     # Start
-    node = P2P(self, dest, chatPrint=ui.chatbuffer_add)
+    node = P2P(self, dest, chatPrint=ui.chatbuffer_add, debugPrint=debug)
     node.connect()
 
     # Main exchange

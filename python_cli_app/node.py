@@ -5,10 +5,11 @@ from eke import EKE
 sysCTA = "sys > "
 
 class P2P (Node):
-    def __init__(self, nodeInfo, destInfo, chatPrint):
+    def __init__(self, nodeInfo, destInfo, chatPrint, debugPrint=False):
         super(P2P, self).__init__(nodeInfo["host"], nodeInfo["port"], callback=None)
         self.debug = False
         self.chatPrint=chatPrint
+        self.debugPrint = debugPrint
 
         self.nodeInfo = nodeInfo
         self.destInfo = destInfo
@@ -25,7 +26,8 @@ class P2P (Node):
         return f"{self.destInfo.get('user')} >> "
 
     def sysPrint(self, msg):
-        self.chatPrint(sysCTA + msg)
+        if self.debugPrint:
+            self.chatPrint(sysCTA + msg)
 
     # Init connection
 
@@ -84,16 +86,16 @@ class P2P (Node):
     ## System Logs
 
     def inbound_node_connected(self, node):
-        pass # self.sysPrint('inbound_node_connected')
+        self.sysPrint('inbound_node_connected')
 
     def inbound_node_disconnected(self, node):
-        pass # self.sysPrint('inbound_node_disconnected')
+        self.sysPrint('inbound_node_disconnected')
 
     def outbound_node_disconnected(self, node):
-        pass # self.sysPrint('outbound_node_disconnected')
+        self.sysPrint('outbound_node_disconnected')
 
     def node_disconnect_with_outbound_node(self, node):
-        pass # self.sysPrint('node_disconnect_with_outbound_node')
+        self.sysPrint('node_disconnect_with_outbound_node')
 
     def node_request_to_stop(self):
-        pass # self.sysPrint('node_request_to_stop')
+        self.sysPrint('node_request_to_stop')

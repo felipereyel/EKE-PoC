@@ -3,9 +3,9 @@ import argparse, sys, json
 def init():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--usuario', '-u', dest='user', help='Usuario', required=True)
-    parser.add_argument('--destinatario', '-d', dest='dest', help='Destinatario', required=True)
-    parser.add_argument('--debug', dest='debug', help='Debug Prints', action='store_true')
+    parser.add_argument('--usuario', '-u', dest='user', help='Seu usuario', required=True)
+    parser.add_argument('--destinatario', '-d', dest='dest', help='Usuario com que se quer conectar', required=True)
+    parser.add_argument('--debug', dest='debug', help='Mostrar Debug Prints', action='store_true')
     parser.set_defaults(debug=False)
     args = parser.parse_args()
 
